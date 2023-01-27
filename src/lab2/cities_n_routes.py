@@ -30,7 +30,7 @@ def get_randomly_spread_cities(size, n_cities):
         city_locs.update(city_choices(size, n_cities - n_city_locs))
         n_city_locs = len(city_locs)
 
-    return city_locs
+    return list(city_locs)
 
 def get_routes(city_names):
     """
@@ -42,7 +42,7 @@ def get_routes(city_names):
             each item in the list (a link) represents a route between two cities.
     """
 
-    return combinations(city_names, 2)
+    return list(combinations(city_names, 2))
 
 def main():
     """

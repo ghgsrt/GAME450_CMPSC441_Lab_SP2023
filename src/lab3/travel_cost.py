@@ -39,7 +39,30 @@ def get_route_cost(route_coordinate, game_map):
     :return: a floating point number representing the cost of the route
     """
     # Build a path from start to end that looks like [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 4)]
-    pass 
+    import itertools as it
+
+    def sign(num):
+        return 1 if num > 0 else -1 if num < 0 else 0
+
+    curr_cell, end_cell = route_coordinate
+    dist_x, dist_y = (end_cell[0] - curr_cell[0], end_cell[1] - curr_cell[1])
+    sign_x, sign_y = (sign(dist_x), sign(dist_y))
+    num_moves_x, num_moves_y = (abs(dist_x), abs(dist_y))
+    
+    it_num_moves = it.zip_longest(
+        range(num_moves_x),
+        range(num_moves_y),
+        fillvalue=min(num_moves_x, num_moves_y)
+    )
+
+    path = [
+        (
+            (curr_cell[0] + (sign_x * i)),
+            (curr_cell[1] + (sign_y * j))
+        )
+        for i, j in it_num_moves
+    ]
+
     return game_map[tuple(zip(*path))].sum()
 
 
@@ -65,7 +88,7 @@ def main():
     sys.path.append(str((Path(__file__)/'..'/'..').resolve().absolute()))
     from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
 
-    city_names = ['Morkomasto', 'Morathrad', 'Eregailin', 'Corathrad', 'Eregarta', 
+    city_names = ['Morkomasto', 'Morathrad', 'Eregailin', 'Corathrad', 'Eregarta',
                   'Numensari', 'Rhunkadi', 'Londathrad', 'Baernlad', 'Forthyr']
     map_size = 300, 200
 
