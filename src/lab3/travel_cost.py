@@ -44,11 +44,11 @@ def get_route_cost(route_coordinate, game_map):
     def sign(num):
         return 1 if num > 0 else -1 if num < 0 else 0
 
-    curr_cell, end_cell = route_coordinate
-    dist_x, dist_y = (end_cell[0] - curr_cell[0], end_cell[1] - curr_cell[1])
+    start_cell, end_cell = route_coordinate
+    dist_x, dist_y = (end_cell[0] - start_cell[0], end_cell[1] - start_cell[1])
     sign_x, sign_y = (sign(dist_x), sign(dist_y))
     num_moves_x, num_moves_y = (abs(dist_x), abs(dist_y))
-    
+
     it_num_moves = it.zip_longest(
         range(num_moves_x),
         range(num_moves_y),
@@ -57,8 +57,8 @@ def get_route_cost(route_coordinate, game_map):
 
     path = [
         (
-            (curr_cell[0] + (sign_x * i)),
-            (curr_cell[1] + (sign_y * j))
+            (start_cell[0] + (sign_x * i)),
+            (start_cell[1] + (sign_y * j))
         )
         for i, j in it_num_moves
     ]

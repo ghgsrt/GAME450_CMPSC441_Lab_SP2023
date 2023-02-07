@@ -25,10 +25,8 @@ def get_randomly_spread_cities(size, n_cities):
     """
 
     city_locs = set(city_choices(size, n_cities))
-    n_city_locs = len(city_locs)
-    while n_city_locs < n_cities:
-        city_locs.update(city_choices(size, n_cities - n_city_locs))
-        n_city_locs = len(city_locs)
+    while len(city_locs) < n_cities:
+        city_locs.update(city_choices(size, n_cities - len(city_locs)))
 
     return list(city_locs)
 
