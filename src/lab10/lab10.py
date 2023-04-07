@@ -7,10 +7,11 @@ You can usually improve the model by normalizing the input data. Try that and se
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
 import pandas as pd
 import numpy as np
 
-data = pd.read_csv("src/lab8/heart.csv")
+data = pd.read_csv("src/lab10/heart.csv")
 
 # Transform the categorical variables into dummy variables.
 print(data.head())
@@ -24,9 +25,16 @@ x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=0.2, random_state=25
 )
 
+# unnecessary, just to get rid of a UserWarning
+x_train = np.array(x_train)
+x_test = np.array(x_test)
+y_train = np.array(y_train)
+y_test = np.array(y_test)
+
 """ Train a sklearn model here. """
 
-sklearn_model = None
+sklearn_model = KNeighborsClassifier()
+sklearn_model.fit(x_train, y_train)
 
 # Accuracy
 print("Accuracy of model: {}\n".format(sklearn_model.score(x_test, y_test)))
@@ -34,4 +42,11 @@ print("Accuracy of model: {}\n".format(sklearn_model.score(x_test, y_test)))
 
 """ Improve the model by normalizing the input data. """
 
-print("Accuracy of improved model: {}\n".format(sklearn_model.score(x_test, y_test)))
+scaler = StandardScaler()
+x_train_norm = np.array(scaler.fit_transform(x_train))
+x_test_norm = np.array(scaler.transform(x_test))
+
+sklearn_model_norm = KNeighborsClassifier()
+sklearn_model_norm.fit(x_train_norm, y_train)
+
+print("Accuracy of improved model: {}\n".format(sklearn_model_norm.score(x_test_norm, y_test)))
