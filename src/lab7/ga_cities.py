@@ -1,5 +1,8 @@
+# I have pylint uninstalled entirely yet it's still linting, smh VSCode
+# pylint: disable-all
+
 """
-Lab 7: Realistic Cities 
+Lab 7: Realistic Cities
 
 In this lab you will try to generate realistic cities using a genetic algorithm.
 Your cities should not be under water, and should have a realistic distribution across the landscape.
@@ -7,7 +10,7 @@ Your cities may also not be on top of mountains or on top of each other.
 Create the fitness function for your genetic algorithm, so that it fulfills these criterion
 and then use it to generate a population of cities.
 
-Please comment your code in the fitness function to explain how are you making sure each criterion is 
+Please comment your code in the fitness function to explain how are you making sure each criterion is
 fulfilled. Clearly explain in comments which line of code and variables are used to fulfill each criterion.
 """
 import matplotlib.pyplot as plt
@@ -19,17 +22,29 @@ from pathlib import Path
 
 sys.path.append(str((Path(__file__) / ".." / ".." / "..").resolve().absolute()))
 
-from src.lab5.landscape import elevation_to_rgba
+from src.lab5.landscape import elevation_to_rgba, get_elevation
 
 
 def game_fitness(cities, idx, elevation, size):
-    fitness = 0.0001  # Do not return a fitness of 0, it will mess up the algorithm.
     """
     Create your fitness function here to fulfill the following criteria:
     1. The cities should not be under water
     2. The cities should have a realistic distribution across the landscape
     3. The cities may also not be on top of mountains or on top of each other
     """
+    fitness = 300.0001  # Do not return a fitness of 0, it will mess up the algorithm.
+
+    distance_threshold = 15
+    distance_penalty = 30
+    underwater_threshold = 0.35
+    underwater_penalty = 65
+    mountain_threshold = 0.6
+    mountain_penalty = 50
+
+    city_coordinates = [(city // size[1], city % size[1]) for city in cities]
+    penalties = [underwater_penalty if elevation[x, y] < underwater_threshold else mountain_penalty if elevation[x, y] > mountain_threshold else distance_penalty * sum(np.sqrt((x - x2) ** 2 + (y - y2) ** 2) < distance_threshold for x2, y2 in city_coordinates if (x, y) != (x2, y2)) for x, y in city_coordinates]
+    fitness -= sum(penalties)
+
     return fitness
 
 
@@ -113,7 +128,7 @@ if __name__ == "__main__":
 
     size = 100, 100
     n_cities = 10
-    elevation = []
+    elevation = get_elevation(size)
     """ initialize elevation here from your previous code"""
     # normalize landscape
     elevation = np.array(elevation)
