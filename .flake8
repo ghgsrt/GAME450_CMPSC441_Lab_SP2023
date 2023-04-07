@@ -1,0 +1,5 @@
+[flake8]
+# E501: line too long
+# E731: do not assign a lambda expression, use a def
+# E402: module level import not at top of file
+extend-ignore = E501, E731, E402
