@@ -19,14 +19,13 @@ class CombatPlayer(Player):
         self.current_env_state = None
 
     def selectAction(self, percept: Tuple) -> None:
-        env_state = percept[0]
-        last_weapon = percept[1]
+        env_state = percept
 
         if percept is not None:
-            self.opponent_choices.append(last_weapon)
             self.current_env_state = env_state
 
         self._action = self.weapon_selecting_strategy()
+        self.weapon = self._action
         self.my_choices.append(self.action)
 
     def damage(self) -> None:
@@ -57,30 +56,34 @@ class Combat:
 
     def newRound(self) -> None:
         self.round += 1
-        print("\n***   Round: %d   ***\n" % (self.round))
+        # print("\n***   Round: %d   ***\n" % (self.round))
 
-    def checkWin(self, player: CombatPlayer, opponent: CombatPlayer) -> None:
+    def checkWin(self, player: CombatPlayer, opponent: CombatPlayer) -> bool:
         if player.health < 1 and opponent.health > 0:
             self.gameOver = True
-            print("You Lose")
+            # print("You Lose")
+            return -1
         elif opponent.health < 1 and player.health > 0:
             self.gameOver = True
-            print("You Win")
+            # print("You Win")
+            return 1
         elif player.health < 1 and opponent.health < 1:
             self.gameOver = True
-            print("*** Draw ***")
+            # print("*** Draw ***")
+            return 0
+        return 0
 
-    def displayResult(self, player: CombatPlayer, opponent: CombatPlayer) -> None:
-        print(
-            "%s used a %s, %s used a %s \n"
-            % (
-                player.name,
-                weapons[player.weapon],
-                opponent.name,
-                weapons[opponent.weapon],
-            )
-        )
-        print("%s caused damage to %s\n" % (player.name, opponent.name))
+    # def displayResult(self, player: CombatPlayer, opponent: CombatPlayer) -> None:
+        # print(
+        #     "%s used a %s, %s used a %s \n"
+        #     % (
+        #         player.name,
+        #         weapons[player.weapon],
+        #         opponent.name,
+        #         weapons[opponent.weapon],
+        #     )
+        # )
+        # print("%s caused damage to %s\n" % (player.name, opponent.name))
 
     def takeTurn(self, player: CombatPlayer, opponent: CombatPlayer) -> None:
         decisionArray = [  # Sword   Arrow   Fire
@@ -88,9 +91,9 @@ class Combat:
             [True, True, False],  # Arrow
             [False, True, True],  # Fire
         ]
-        print(
-            f"\n{player.name} used {weapons[player.weapon]}, {opponent.name} used {weapons[opponent.weapon]}"
-        )
+        # print(
+        #     f"\n{player.name} used {weapons[player.weapon]}, {opponent.name} used {weapons[opponent.weapon]}"
+        # )
         if decisionArray[player.weapon][opponent.weapon]:
             opponent.damage()
 
@@ -112,8 +115,8 @@ def run_console_combat():
             player.selectWeapon()
         currentGame.newRound()
         currentGame.takeTurn(human, computer)
-        print("%s's health = %d" % (human.name, human.health))
-        print("%s's health = %d" % (computer.name, computer.health))
+        # print("%s's health = %d" % (human.name, human.health))
+        # print("%s's health = %d" % (computer.name, computer.health))
         currentGame.checkWin(human, computer)
 
 # # From https://codereview.stackexchange.com/questions/237601/simple-python-turn-based-battle-game
