@@ -5,19 +5,21 @@ import numpy as np
 def get_elevation(size):
     xpix, ypix = size
 
-    noise1 = PerlinNoise(octaves=3)
-    noise2 = PerlinNoise(octaves=6)
-    noise3 = PerlinNoise(octaves=12)
-    noise4 = PerlinNoise(octaves=24)
+    octaves = [3, 6, 12, 24]
+
+    noises = {}
+    for octave in octaves:
+        noises[octave] = PerlinNoise(octaves=octave)
 
     noise = []
     for i in range(xpix):
         row = []
         for j in range(ypix):
-            noise_val = noise1([i/xpix, j/ypix])
-            noise_val += 0.5 * noise2([i/xpix, j/ypix])
-            noise_val += 0.25 * noise3([i/xpix, j/ypix])
-            noise_val += 0.125 * noise4([i/xpix, j/ypix])
+            coords = [i/xpix, j/ypix]
+
+            noise_val = 0
+            for octave in octaves:
+                noise_val += (octaves[0] / octave) * noises[octave](coords)
 
             row.append(noise_val)
         noise.append(row)

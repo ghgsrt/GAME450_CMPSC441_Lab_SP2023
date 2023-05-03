@@ -45,8 +45,7 @@ def run_episode(player1, player2):
     episode_data = []
 
     while not currentGame.gameOver:
-        observation, action, reward = run_turn(currentGame, player1, player2)
-        episode_data.append((observation, action, reward))
+        episode_data.append(run_turn(currentGame, player1, player2))
 
     return episode_data
 

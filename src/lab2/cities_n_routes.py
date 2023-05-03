@@ -1,17 +1,16 @@
-'''
+"""
 Lab 2: Cities and Routes
 
 In the final project, you will need a bunch of cities spread across a map. Here you
 will generate a bunch of cities and all possible routes between them.
-'''
+"""
 import random
 from itertools import combinations
 
+
 def city_choices(size, k):
-    return zip(
-        random.choices(range(size[0]), k=k),
-        random.choices(range(size[1]), k=k)
-    )
+    return zip(random.choices(range(size[0]), k=k), random.choices(range(size[1]), k=k))
+
 
 def get_randomly_spread_cities(size, n_cities):
     """
@@ -30,6 +29,7 @@ def get_randomly_spread_cities(size, n_cities):
 
     return list(city_locs)
 
+
 def get_routes(city_names):
     """
     It takes a list of cities and returns a list of all possible routes between those cities.
@@ -42,23 +42,25 @@ def get_routes(city_names):
 
     return list(combinations(city_names, 2))
 
+
 def main():
     """
     Main entrance to the program.
     """
 
-    city_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    city_names = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
     cities = get_randomly_spread_cities((100, 200), len(city_names))
     routes = get_routes(city_names)
 
-    print('Cities:')
+    print("Cities:")
     for i, city in enumerate(cities):
-        print(f'{city_names[i]}: {city}')
+        print(f"{city_names[i]}: {city}")
 
-    print('Routes:')
+    print("Routes:")
     for i, route in enumerate(routes):
-        print(f'{i}: {route[0]} to {route[1]}')
+        print(f"{i}: {route[0]} to {route[1]}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

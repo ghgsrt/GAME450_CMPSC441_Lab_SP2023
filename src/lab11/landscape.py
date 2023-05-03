@@ -5,11 +5,28 @@ from typing import Callable, Tuple
 
 def get_elevation(size: Tuple[int, int], octaves: int = 3) -> np.ndarray:
     xpix, ypix = size
-    noise = PerlinNoise(octaves=octaves, seed=2)
-    elevation = np.array(
-        [[noise([i / xpix, j / ypix]) for j in range(ypix)] for i in range(xpix)]
-    )
-    return elevation
+
+    octaves = [3, 6, 12, 24]
+    seed = 69
+
+    noises = {}
+    for octave in octaves:
+        noises[octave] = PerlinNoise(octaves=octave, seed=seed)
+
+    noise = []
+    for i in range(xpix):
+        row = []
+        for j in range(ypix):
+            coords = [i/xpix, j/ypix]
+
+            noise_val = 0
+            for octave in octaves:
+                noise_val += (octaves[0] / octave) * noises[octave](coords)
+
+            row.append(noise_val)
+        noise.append(row)
+
+    return np.array(noise)
 
 
 def elevation_to_rgba(elevation: np.ndarray, cmap: str = "gist_earth") -> np.ndarray:

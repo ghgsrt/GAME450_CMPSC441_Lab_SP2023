@@ -4,8 +4,9 @@ import random
 from sprite import Sprite
 from pygame_combat import run_pygame_combat
 from pygame_human_player import PyGameHumanPlayer
-from landscape import get_landscape, get_combat_bg
+from landscape import get_landscape, get_combat_bg, elevation_to_rgba, get_elevation
 from pygame_ai_player import PyGameAIPlayer
+from dialogue import Dialogue
 
 from pathlib import Path
 from typing import List, Tuple
@@ -13,14 +14,13 @@ from typing import List, Tuple
 sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
 
 from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
-
+from lab7.ga_cities import get_spread_cities, get_paths
 
 pygame.font.init()
 game_font = pygame.font.SysFont("Comic Sans MS", 15)
 
 
-def get_landscape_surface(size: Tuple[int, int]) -> pygame.Surface:
-    landscape = get_landscape(size)
+def get_landscape_surface(size: Tuple[int, int], landscape) -> pygame.Surface:
     print("Created a landscape of size", landscape.shape)
     pygame_surface = pygame.surfarray.make_surface(landscape[:, :, :3])
     return pygame_surface
@@ -40,7 +40,9 @@ def setup_window(width: int, height: int, caption: str) -> pygame.Surface:
     return window
 
 
-def displayCityNames(city_locations: List[Tuple[int, int]], city_names: List[str]) -> None:
+def displayCityNames(
+    city_locations: List[Tuple[int, int]], city_names: List[str]
+) -> None:
     for i, name in enumerate(city_names):
         text_surface = game_font.render(str(i) + " " + name, True, (0, 0, 150))
         screen.blit(text_surface, city_locations[i])
@@ -74,7 +76,10 @@ if __name__ == "__main__":
 
     screen = setup_window(width, height, "Game World Gen Practice")
 
-    landscape_surface = get_landscape_surface(size)
+    elevation = get_elevation(size)
+    landscape = elevation_to_rgba(elevation)
+
+    landscape_surface = get_landscape_surface(size, landscape)
     combat_surface = get_combat_surface(size)
     city_names = [
         "Morkomasto",
@@ -89,11 +94,13 @@ if __name__ == "__main__":
         "Forthyr",
     ]
 
-    cities = get_randomly_spread_cities(size, len(city_names))
+    cities = get_spread_cities(size, elevation, len(city_names))
+    # cities = get_randomly_spread_cities(size, len(city_names))
     routes = get_routes(cities)
+    routes = get_paths(routes, list(elevation), size)
 
-    random.shuffle(routes)
-    routes = routes[:10]
+    # random.shuffle(routes)
+    # routes = routes[:10]
 
     player_sprite = Sprite(sprite_path, cities[start_city])
 
@@ -101,7 +108,7 @@ if __name__ == "__main__":
 
     """ Add a line below that will reset the player variable to 
     a new object of PyGameAIPlayer class."""
-    player = PyGameAIPlayer()
+    # player = PyGameAIPlayer()
 
     state = State(
         current_city=start_city,
@@ -112,6 +119,8 @@ if __name__ == "__main__":
         routes=routes,
     )
 
+    dialog = Dialogue()
+
     while True:
         action = player.selectAction(state)
         if 0 <= int(chr(action)) <= 9:
@@ -119,6 +128,13 @@ if __name__ == "__main__":
                 start = cities[state.current_city]
                 state.destination_city = int(chr(action))
                 destination = cities[state.destination_city]
+                print(destination)
+                print(
+                    dialog.get_response(
+                        "player", "Briefly ponder how you are about to travel."
+                    )
+                )
+                # print("Cost: ", routes[(start, destination)][1])
                 player_sprite.set_location(cities[state.current_city])
                 state.travelling = True
                 print(
@@ -131,15 +147,21 @@ if __name__ == "__main__":
         for city in cities:
             pygame.draw.circle(screen, (255, 0, 0), city, 5)
 
-        for line in routes:
-            pygame.draw.line(screen, (255, 0, 0), *line)
+        for route in routes:
+            for coord in routes[route][0]:
+                pygame.draw.line(screen, (100, 100, 0), coord, coord)
+
+            # for i in range(len(path) - 1):
+            #     print(path[i], path[i + 1])
+            #     pygame.draw.line(screen, (100, 100, 0), path[i], path[i + 1])
+            # pygame.draw.line(screen, (255, 0, 0), *line)
 
         displayCityNames(cities, city_names)
         if state.travelling:
             state.travelling = player_sprite.move_sprite(destination, sprite_speed)
             state.encounter_event = random.randint(0, 1000) < 2
             if not state.travelling:
-                print('Arrived at', state.destination_city)
+                print("Arrived at", state.destination_city)
 
         if not state.travelling:
             encounter_event = False
@@ -152,7 +174,7 @@ if __name__ == "__main__":
             player_sprite.draw_sprite(screen)
         pygame.display.update()
         if state.current_city == end_city:
-            print('You have reached the end of the game!')
+            print("You have reached the end of the game!")
             break
 
 
@@ -256,7 +278,7 @@ if __name__ == "__main__":
 
 #     player = PyGameHumanPlayer()
 
-#     """ Add a line below that will reset the player variable to 
+#     """ Add a line below that will reset the player variable to
 #     a new object of PyGameAIPlayer class."""
 #     player = PyGameAIPlayer()
 

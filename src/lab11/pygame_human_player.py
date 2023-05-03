@@ -3,8 +3,8 @@ from lab11.turn_combat import CombatPlayer
 from typing import Any
 
 class PyGameHumanPlayer:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, starting_money=100.0) -> None:
+        self.money = starting_money
 
     def selectAction(self, state) -> int:
         for event in pygame.event.get():

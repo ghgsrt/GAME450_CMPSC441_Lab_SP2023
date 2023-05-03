@@ -74,8 +74,8 @@ def run_episodes(n_episodes):
         the values are dictionaries of actions and their values.
     """
 
-    action_values = defaultdict(lambda: defaultdict(int))
-    state_action_count = defaultdict(lambda: defaultdict(int))
+    action_values = defaultdict(lambda: defaultdict(float))
+    state_action_count = defaultdict(lambda: defaultdict(float))
 
     random_player = PyGameRandomCombatPlayer("Random Player")
     opponent = PyGameComputerCombatPlayer("Computer")
@@ -86,7 +86,8 @@ def run_episodes(n_episodes):
 
         for state, actions_returns in history_returns.items():
             for action, return_ in actions_returns.items():
-                action_values[state][action] += return_
+                action_values[state][action] += float(return_)
+                state_action_count[state][action] += 1.0
 
     for state in action_values:
         for action in action_values[state]:
@@ -96,7 +97,7 @@ def run_episodes(n_episodes):
 
 
 def get_optimal_policy(action_values):
-    optimal_policy = defaultdict(int)
+    optimal_policy = defaultdict(float)
     for state in action_values:
         optimal_policy[state] = max(action_values[state], key=action_values[state].get)
     return optimal_policy
@@ -108,14 +109,16 @@ def test_policy(policy):
     for _ in range(100):
         player1 = PyGamePolicyCombatPlayer(names[0], policy)
         player2 = PyGameComputerCombatPlayer(names[1])
-        players = [player1, player2]
-        total_reward += sum([reward for _, _, reward in run_episode(*players)])
+        temp = [reward for _, _, reward in run_episode(player1, player2)]
+        print(temp)
+        total_reward += sum([reward for _, _, reward in run_episode(player1, player2)])
+        print(total_reward)
     return total_reward / 100
 
 
 if __name__ == "__main__":
-    action_values = run_episodes(10000)
-    print("action values", action_values)
+    action_values = run_episodes(100000)
+    # print("action values", action_values)
     optimal_policy = get_optimal_policy(action_values)
     print("optimal policy", optimal_policy)
     print("test policy", test_policy(optimal_policy))
