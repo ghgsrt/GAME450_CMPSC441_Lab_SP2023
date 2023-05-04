@@ -273,7 +273,7 @@ def astar(
     return None, None, None
 
 
-class CrazyDict(defaultdict):
+class CrazyDict():
     def __setitem__(self, key, value) -> None:
         return super().__setitem__(tuple(sorted(key)), value)
 
@@ -282,9 +282,8 @@ class CrazyDict(defaultdict):
 
 
 def get_paths(routes, elevation, size, max_distance=100):
-    paths = CrazyDict(tuple)
-
-    shortest_paths_dict = CrazyDict(lambda: (None, float("inf"), float("inf")))
+    paths = CrazyDict()
+    shortest_paths_dict = CrazyDict()
 
     for start, end in routes:
         start = tuple(start)
@@ -318,7 +317,7 @@ def get_paths(routes, elevation, size, max_distance=100):
             paths[route] = (shortest_path, cost)
 
     for i, (key, (path, cost)) in enumerate(paths.items()):
-        print(f"{i}:  {cost}")
+        print(f"{i}:  {key}")
 
     return paths
 

@@ -1,6 +1,30 @@
 import pygame
 import math
 from typing import Any, List, Tuple
+import torch
+
+from diffusers import StableDiffusionPipeline
+
+model_id = "kohbanye/pixel-art-style"
+device = "cuda"
+
+pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+pipe = pipe.to(device)
+
+
+# disable the nsfw filter to avoid black boxes when it inevitably misclassifies
+def dummy(images, **_kwargs):
+    return images, False
+
+
+pipe.safety_checker = dummy
+
+prompt = "pixelartstyle, rpg, bandit, robber, holding a weapon, angry"
+
+
+def generate_image():
+    pipe(prompt).images[0].save("assets/ai.png")
+
 
 def load_image(image_path: str) -> pygame.Surface:
     image = pygame.image.load(image_path).convert_alpha()
@@ -8,8 +32,15 @@ def load_image(image_path: str) -> pygame.Surface:
 
 
 class Sprite:
-    def __init__(self, image_path: str, starting_position: Tuple[int, int], scaled_size: Tuple[int, int] = (50, 50)) -> None:
+    def __init__(
+        self,
+        image_path: str,
+        starting_position: Tuple[int, int],
+        scaled_size: Tuple[int, int] = (50, 50),
+    ) -> None:
         self.sprite_pos: List[float] = list(map(float, starting_position))
+        if image_path == "assets/ai.png":
+            generate_image()
         self.sprite_image: pygame.Surface = load_image(image_path)
         self.sprite_image = pygame.transform.scale(self.sprite_image, scaled_size)
 

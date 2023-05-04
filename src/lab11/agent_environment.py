@@ -48,6 +48,26 @@ def displayCityNames(
         screen.blit(text_surface, city_locations[i])
 
 
+def displayJournal():
+    text_list = []
+    for entry in dialog.journal:
+        text_list.append(game_font.render(entry, True, (0, 0, 150)))
+
+    text_bg = pygame.Rect(20, 20, 250, 360)
+
+    text_y = text_bg.bottom - game_font.get_height()
+    for text in reversed(text_list):
+        if text_y <= text_bg.top:
+            text_list.remove(text)
+        else:
+            screen.blit(text, (text_bg.left + 10, text_y))
+        text_y -= game_font.get_height()
+        screen.blit(text, (text_bg.left + 10, text_y))
+
+    pygame.draw.rect(screen, (164, 164, 164), text_bg, 5)
+    screen.set_clip(None)
+
+
 class State:
     def __init__(
         self,
@@ -130,7 +150,7 @@ if __name__ == "__main__":
                 destination = cities[state.destination_city]
                 print(destination)
                 print(
-                    dialog.get_response(
+                    dialog.prompt(
                         "player", "Briefly ponder how you are about to travel."
                     )
                 )
@@ -168,6 +188,10 @@ if __name__ == "__main__":
             state.current_city = state.destination_city
 
         if state.encounter_event:
+            dialog.prompt(
+                "generic_enemy",
+                "You've come across an elf you can rob! Say something intimidating!",
+            )
             run_pygame_combat(combat_surface, screen, player_sprite)
             state.encounter_event = False
         else:
